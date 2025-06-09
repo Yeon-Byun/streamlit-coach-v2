@@ -1,48 +1,60 @@
 import streamlit as st
 
+# 페이지 설정
 st.set_page_config(page_title="AI 수업 코칭 도우미", layout="centered")
-st.title("📘 AI 수업 코칭 도우미")
+st.title("📘 수업 발전을 위한 AI 코칭 도우미")
 
-st.write("아래 항목을 선택하면, 교실 상황에 맞는 수업 피드백을 AI가 제공합니다.")
+# 설명 문구
+st.markdown("""
+이 도구는 **수업 구상이 아닌, 수업 후 교사 성찰을 위한 코칭 도우미**입니다.
 
-# [1] 교사 스타일
-st.subheader("1️⃣ 교사 스타일")
-teacher_style = st.multiselect("수업 진행 방식", [
-    "정적인 강의형", "활동 중심형", "토론·질문 중심형", "시청각 자료 중심형"
-])
-teacher_strength = st.multiselect("수업 강점", [
-    "언변이 좋음", "자료 정리에 강점", "학생 참여 유도에 능숙함", "유머·몰입 유도"
-])
-teaching_design = st.radio("수업 설계 스타일", ["계획형(사전 준비 중심)", "즉흥형(유연한 흐름 중심)"])
+모든 학생을 위한 완벽한 맞춤 수업은 현실적으로 어렵지만,  
+AI는 교사의 전문성을 바탕으로 수업을 돌아보고 **더 나은 방향으로 발전**할 수 있도록 돕는 조력자 역할을 합니다.
 
-# [2] 학급 특성
-st.subheader("2️⃣ 학급 특성")
-attention_span = st.radio("학생들의 집중 유지 수준은?", [
-    "단기 유지형(~10분)", "중기 유지형(20~30분)", "장기 유지형(40분 이상)"
-])
-distraction_level = st.radio("산만한 학생 비율", ["30% 이하", "30~50%", "50% 이상"])
-low_achievement_level = st.radio("학습부진 학생 비율", ["30% 이하", "30~50%", "50% 이상"])
-challenging_behavior = st.radio("도전적 행동을 보이는 학생이 있나요?", ["있음", "없음"])
-special_needs = st.multiselect("특수한 정서·행동적 요구", [
-    "자폐 경향", "충동성·분노 조절 어려움", "불안·위축", "관계 미숙"
-])
+아래 질문에 답하며, **수업의 흐름과 어려웠던 지점**을 정리해 보세요.
+""")
 
-# [3] 수업 목표
-st.subheader("3️⃣ 수업 목표 및 초점")
-teaching_focus = st.multiselect("수업의 주된 목표", [
-    "지식 전달", "탐구 및 문제 해결", "감정 표현·사회성", "자기조절 및 생활 기술",
-    "참여와 협력", "문해력 강화", "기본학력 보장"
-])
+# [1] 수업 정보
+st.subheader("1️⃣ 수업 정보")
+subject = "과학"
+grade = "중등 1학년"
+lesson_theme = st.text_input("수업 주제", placeholder="예: 기체의 부피와 압력")
 
-# [4] 선호 수업 형태
-st.subheader("4️⃣ 선호 수업 형태 및 매체")
-teaching_tools = st.multiselect("활용하고 싶은 수업 도구", [
-    "디지털 매체", "활동지", "게임·퀴즈", "이야기·롤플레이", "실험·조작", "교과 융합", "개별 맞춤 활동"
+# [2] 수업 내용 요약
+st.subheader("2️⃣ 수업 내용 요약")
+lesson_summary = st.text_area("어떤 활동과 흐름이 있었나요?", height=150)
+
+# [3] 어려움 또는 피드백 받고 싶은 부분
+st.subheader("3️⃣ 피드백 받고 싶은 부분")
+feedback_focus = st.multiselect("아래 중 해당하는 항목을 선택해 주세요", [
+    "도입에서 학생의 몰입이 어려웠어요",
+    "학생들이 핵심 개념을 헷갈려했어요",
+    "참여가 저조했어요",
+    "시간이 부족했어요",
+    "도전적 행동이 수업 흐름에 영향을 줬어요",
+    "정리·마무리가 약했어요",
+    "활동이 기대만큼 효과적이지 않았어요",
+    "질문에 대한 반응이 미약했어요",
+    "전반적인 흐름이 매끄럽지 않았어요"
 ])
 
-# [5] AI 피드백 영역
-st.subheader("5️⃣ AI 피드백 희망 영역")
-coaching_focus = st.selectbox("어떤 분야의 피드백이 필요하신가요?", [
-    "수업 도입 아이디어", "학생 참여 전략", "도전 행동 대응", "수준별 질문 제안",
-    "활동지 아이디어", "정리·평가 전략", "전체 수업 흐름 구조"
+# [4] 교실 특성 (선택 사항)
+st.subheader("4️⃣ 교실 특성 (선택)")
+class_context = st.multiselect("해당하는 상황이 있다면 선택해 주세요", [
+    "산만한 학생이 많음",
+    "도전적 행동 있음",
+    "기초학력 미달 학생 다수",
+    "정서적 어려움 있는 학생 있음",
+    "자폐/ADHD 학생 포함",
+    "다문화 학생 포함"
 ])
+
+# GPT 연동 전 확인용 출력
+if st.button("AI 코칭 받기 (미리보기용)"):
+    st.markdown("✅ **입력 요약**")
+    st.write(f"**과목:** {subject} / **학년:** {grade}")
+    st.write(f"**주제:** {lesson_theme}")
+    st.write(f"**수업 내용 요약:** {lesson_summary}")
+    st.write(f"**피드백 요청 항목:** {feedback_focus}")
+    st.write(f"**교실 특성:** {class_context}")
+    st.markdown("🚧 (GPT 연동은 아직 추가되지 않았습니다)")
