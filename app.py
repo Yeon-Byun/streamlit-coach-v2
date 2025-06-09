@@ -5,8 +5,12 @@ from docx import Document
 # Streamlit 설정
 st.set_page_config(page_title="AI 수업 코칭 도우미", layout="centered")
 
-# GPT API 키 불러오기 (secrets.toml에서 관리)
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+# ✅ GPT API 키 조건부 연결 (공유용일 땐 비활성화)
+if "OPENAI_API_KEY" in st.secrets:
+    openai.api_key = st.secrets["OPENAI_API_KEY"]
+    gpt_enabled = True
+else:
+    gpt_enabled = False
 
 st.title("📘 AI 수업 코칭 도우미")
 st.write("수업 대본(.txt 또는 .docx)을 업로드하고, 교실 상황을 선택하면 AI가 피드백을 제공합니다.")
@@ -54,14 +58,19 @@ def generate_feedback(text, style, status, focus):
     return response.choices[0].message.content
 
 # 실행 버튼
-if st.button("🧠 AI 코칭 받기") and uploaded_file:
-    if uploaded_file.name.endswith(".txt"):
-        text = read_text_file(uploaded_file)
+if st.button("🧠 AI 코칭 받기"):
+    if not gpt_enabled:
+        st.error("⚠️ 현재 이 앱은 공유용으로 설정되어 있어 GPT 기능이 비활성화되어 있습니다.")
+    elif not uploaded_file:
+        st.warning("📎 수업 대본 파일을 먼저 업로드해주세요.")
     else:
-        text = read_docx_file(uploaded_file)
+        if uploaded_file.name.endswith(".txt"):
+            text = read_text_file(uploaded_file)
+        else:
+            text = read_docx_file(uploaded_file)
 
-    with st.spinner("AI가 수업을 분석 중입니다..."):
-        feedback = generate_feedback(text, teacher_style, classroom_status, coaching_focus)
+        with st.spinner("AI가 수업을 분석 중입니다..."):
+            feedback = generate_feedback(text, teacher_style, classroom_status, coaching_focus)
 
-    st.subheader("📝 AI 코칭 피드백")
-    st.write(feedback)
+        st.subheader("📝 AI 코칭 피드백")
+        st.write(feedback)
