@@ -1,5 +1,6 @@
 import streamlit as st
 import openai
+from openai import OpenAI  # ✅ 추가
 
 # 🔐 비밀번호 입력
 password = st.text_input("비밀번호를 입력하세요", type="password")
@@ -8,15 +9,11 @@ if password != st.secrets["app_password"]:
     st.stop()
 
 # 🧠 GPT 키 설정
-openai.api_key = st.secrets["openai_api_key"]
+client = OpenAI(api_key=st.secrets["openai_api_key"])  # ✅ 여기도 수정
 
-# 제목
 st.title("🧑‍🏫 수업 피드백 코칭 도우미")
-
-# 입력: 수업 요약
 lesson_summary = st.text_area("📘 수업 요약을 입력해 주세요", height=200)
 
-# GPT 피드백 생성 버튼
 if st.button("✍ GPT 피드백 생성"):
     if not lesson_summary.strip():
         st.warning("수업 요약을 먼저 입력해 주세요.")
@@ -29,14 +26,14 @@ if st.button("✍ GPT 피드백 생성"):
 {lesson_summary}
 """
             try:
-                response = openai.ChatCompletion.create(
+                response = client.chat.completions.create(
                     model="gpt-3.5-turbo",
                     messages=[
                         {"role": "system", "content": "당신은 교육 전문가입니다."},
                         {"role": "user", "content": prompt}
                     ]
                 )
-                feedback = response["choices"][0]["message"]["content"]
+                feedback = response.choices[0].message.content
                 st.success("📝 GPT 피드백:")
                 st.write(feedback)
             except Exception as e:
